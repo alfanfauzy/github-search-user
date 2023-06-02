@@ -16,14 +16,12 @@ export const useGetUsersListUsecase = (
 
         return {
             data: usersListMapper,
-            total: data.total_count,
             ...rest,
         };
     }
 
     return {
         data: undefined,
-        total: 0,
         ...rest,
     };
 };
