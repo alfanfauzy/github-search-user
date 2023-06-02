@@ -1,38 +1,67 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import React, { useState } from "react";
+import AtomsLoading from "./core/view/components/atoms/loading";
+import SearchBox from "./core/view/users/components/molecules/searchBox";
+import { useGetUsersListViewModal } from "./core/view/users/view-models/GetUsersListsViewModel";
+import { useGetUsersRepoListViewModal } from "./core/view/usersRepo/view-models/GetUsersRepoListsViewModel";
+import ListUserMolecules from "./core/view/users/components/molecules/listUser";
 
 function App() {
-    const [count, setCount] = useState(0);
+    const [inputValue, setInputValue] = useState("");
+    const [searchValue, setSearchValue] = useState("");
+    const [selectedUser, setSelectedUser] = useState("");
+
+    const { data: ListUser, isLoading } = useGetUsersListViewModal(
+        searchValue,
+        {
+            enabled: searchValue !== "",
+        }
+    );
+
+    const {
+        data: ListRepo,
+        refetch,
+        isLoading: isLoadingListRepo,
+    } = useGetUsersRepoListViewModal(selectedUser, {
+        enabled: selectedUser.length !== 0,
+    });
+
+    const handleSelectedUser = (key: string | string[]) => {
+        setSelectedUser(key as string);
+
+        if (selectedUser.length !== 0) {
+            refetch();
+        }
+    };
+
+    const isEmptyInput = inputValue === "";
+    const isEmptySearch = searchValue === "";
 
     return (
-        <>
-            <div>
-                <a href="https://vitejs.dev" target="_blank">
-                    <img src={viteLogo} className="logo" alt="Vite logo" />
-                </a>
-                <a href="https://react.dev" target="_blank">
-                    <img
-                        src={reactLogo}
-                        className="logo react"
-                        alt="React logo"
+        <div className="bg-slate-200 h-screen w-screen text-black">
+            <div className="pt-10 m-auto w-[500px] border border-neutral-700mx-auto min-h-screen shadow-md bg-white px-5">
+                <h2 className="font-bold text-xl py-3 text-center">
+                    Search Github User
+                </h2>
+
+                <SearchBox
+                    searchValue={searchValue}
+                    inputValue={inputValue}
+                    setInputValue={setInputValue}
+                    setSearchValue={setSearchValue}
+                />
+
+                {isLoading && <AtomsLoading />}
+
+                {!isEmptyInput && !isEmptySearch && ListUser && (
+                    <ListUserMolecules
+                        handleSelectPanel={handleSelectedUser}
+                        dataUser={ListUser}
+                        dataRepo={ListRepo}
+                        isLoadingRepo={isLoadingListRepo}
                     />
-                </a>
+                )}
             </div>
-            <h1>Vite + React</h1>
-            <div className="card">
-                <button onClick={() => setCount((count) => count + 1)}>
-                    count is {count}
-                </button>
-                <p>
-                    Edit <code>src/App.tsx</code> and save to test HMR
-                </p>
-            </div>
-            <p className="read-the-docs">
-                Click on the Vite and React logos to learn more
-            </p>
-        </>
+        </div>
     );
 }
 
