@@ -52,7 +52,10 @@ const SearchBox = ({
         <div className="w-full mb-5">
             <div className="mb-5">
                 <AtomInputText
-                    onChange={(e) => setInputValue(e.target.value)}
+                    onChange={(e) => {
+                        e.target.value === "" && handleClearInput();
+                        setInputValue(e.target.value);
+                    }}
                     value={inputValue}
                     onKeyDown={handleKeyPress}
                     placeholder="Enter username"
